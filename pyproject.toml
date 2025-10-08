@@ -1,0 +1,43 @@
+[project]
+name        = "rustman"
+description = "Easy rustup and cargo shims for Python"
+authors     = [{name="Tremeschin"}]
+version     = "1.28.2.0"
+readme      = "readme.md"
+requires-python = ">=3.9"
+
+[project.scripts]
+rustup-init   = "rustman.shims:init"
+cargo         = "rustman.shims:cargo"
+cargo-clippy  = "rustman.shims:cargo_clippy"
+cargo-fmt     = "rustman.shims:cargo_fmt"
+cargo-miri    = "rustman.shims:cargo_miri"
+clippy-driver = "rustman.shims:clippy_driver"
+rls           = "rustman.shims:rls"
+rust-analyzer = "rustman.shims:rust_analyzer"
+rust-gdb      = "rustman.shims:rust_gdb"
+rust-gdbgui   = "rustman.shims:rust_gdbgui"
+rust-lldb     = "rustman.shims:rust_lldb"
+rustc         = "rustman.shims:rustc"
+rustdoc       = "rustman.shims:rustdoc"
+rustfmt       = "rustman.shims:rustfmt"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rustman"]
+
+[tool.hatch.build.hooks.custom]
+path = "build.py"
+dependencies = [
+    "requests-cache",
+    "packaging",
+]
+
+[dependency-groups]
+dev = [
+    "requests-cache",
+    "packaging",
+]
