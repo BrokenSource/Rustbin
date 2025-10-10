@@ -110,9 +110,6 @@ class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         from requests_cache import CachedSession
 
-        def include(real: Path, virtual: Path) -> None:
-            build["force_include"][str(real)] = str(virtual)
-
         # This python package follows rustup versioning with
         # an extra sub-micro number for unique self releases
         version = Version(self.metadata.version)
@@ -147,8 +144,8 @@ class BuildHook(BuildHookInterface):
             rustup_path.write_bytes(response.content)
             rustup_path.chmod(0o755)
 
-        # Hatchling
-        include(rustup_path, f"rustman/rustup-init")
+        # Pack rustup in the venv bin directory
+        build["shared_scripts"][str(rustup_path)] = f"rustup-init{target.system.executable()}"
         build["tag"] = f"py3-none-{target.wheel_tag()}"
         build["pure_python"] = False
 

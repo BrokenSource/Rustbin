@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 from typing import NoReturn
 
@@ -15,6 +14,7 @@ def _shim(proxy: str) -> NoReturn:
     # Surprisingly, it is smart enough to notice the rustup
     # binary file without .exe extension is an executable!
     if os.name == "nt":
+        import subprocess
         sys.exit(subprocess.run(
             executable=binary(),
             args=args,

@@ -7,7 +7,6 @@ readme      = "readme.md"
 requires-python = ">=3.9"
 
 [project.scripts]
-rustup-init   = "rustman.shims:init"
 cargo         = "rustman.shims:cargo"
 cargo-clippy  = "rustman.shims:cargo_clippy"
 cargo-fmt     = "rustman.shims:cargo_fmt"
