@@ -1,3 +1,6 @@
 from pathlib import Path
 
-PACKAGE: Path = Path(__file__).parent
+
+def binary() -> Path:
+    """Path to the bundled rustup binary"""
+    return Path(__file__).parent/"rustup-init"

@@ -1,31 +1,27 @@
 import os
-import shutil
+import subprocess
 import sys
-from pathlib import Path
 from typing import NoReturn
 
-from rustman import PACKAGE
+from rustman import binary
 
-SUFFIX: str = ".exe" if os.name == "nt" else ""
-
-def rustup() -> Path:
-    return PACKAGE/f"rustup-init{SUFFIX}"
 
 def _shim(proxy: str) -> NoReturn:
-    rustup = shutil.which("rustup")
     args = (proxy, *sys.argv[1:])
 
-    # Windows creates a new process with execv replacing
-    # the current one, so we hold python until done
+    # Windows creates a new process with execv, replacing
+    # the current one, so we hold python until done.
+    #
+    # Surprisingly, it is smart enough to notice the rustup
+    # binary file without .exe extension is an executable!
     if os.name == "nt":
-        import subprocess
         sys.exit(subprocess.run(
-            executable=rustup,
+            executable=binary(),
             args=args,
         ).returncode)
 
     # Replaces the current process
-    os.execv(rustup, args)
+    os.execv(binary(), args)
 
 def init() -> NoReturn:
     _shim("rustup-init")

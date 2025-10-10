@@ -17,6 +17,10 @@ TEMPDIR: Path = Path(tempfile.gettempdir())
 PACKAGE: Path = Path(__file__).parent
 
 # ---------------------------------------------------------------------------- #
+# Common code
+
+class Variables:
+    target: str = "TARGET"
 
 class System(str, Enum):
     Linux:   str = "linux"
@@ -53,8 +57,6 @@ class Arch(str, Enum):
         elif value in ("x86", "i686"):
             return Arch.AMD32
         return None
-
-# ---------------------------------------------------------------------------- #
 
 class Platform(str, Enum):
     LinuxAMD64:   str = "linux-amd64"
@@ -102,6 +104,7 @@ class Platform(str, Enum):
         }.get(self, None)
 
 # ---------------------------------------------------------------------------- #
+# Hatchling build hook
 
 class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
@@ -115,7 +118,7 @@ class BuildHook(BuildHookInterface):
         version = Version(self.metadata.version)
 
         # Get a custom build target or current host platform
-        if (target := os.environ.get("TARGET")):
+        if (target := os.environ.get(Variables.target)):
             target = Platform(target.lower())
         else:
             target = Platform.from_parts(
@@ -124,39 +127,39 @@ class BuildHook(BuildHookInterface):
             )
 
         # Make the download URL
-        rustup_filename: str = f"rustup-init{target.system.executable()}"
-        rustup_included: Path = TEMPDIR/"rustup.bin"
-        rustup = "/".join((
+        rustup_path = TEMPDIR/"rustup.bin"
+        rustup_url = "/".join((
             "https://static.rust-lang.org/rustup/archive",
             f"{version.major}.{version.minor}.{version.micro}",
             target.triple(),
-            rustup_filename,
+            f"rustup-init{target.system.executable()}",
         ))
 
         with CachedSession(
             cache_name=TEMPDIR/"rustup.sqlite",
             expire_after=24*3600,
         ) as session:
-            response = session.get(rustup)
+            response = session.get(rustup_url)
 
             if response.status_code != 200:
-                raise RuntimeError(f"Failed to download rustup from {rustup}")
+                raise RuntimeError(f"Failed to download rustup from {rustup_url}")
 
-            rustup_included.write_bytes(response.content)
-            rustup_included.chmod(0o755)
+            rustup_path.write_bytes(response.content)
+            rustup_path.chmod(0o755)
 
         # Hatchling
-        include(rustup_included, f"rustman/{rustup_filename}")
+        include(rustup_path, f"rustman/rustup-init")
         build["tag"] = f"py3-none-{target.wheel_tag()}"
         build["pure_python"] = False
 
 # ---------------------------------------------------------------------------- #
+# Build script
 
 if __name__ == '__main__':
     for target in Platform:
         print(f"Building for {target}")
 
-        os.environ["TARGET"] = target.value
+        os.environ[Variables.target] = target.value
 
         if call := subprocess.run((
             sys.executable, "-m", "uv",
