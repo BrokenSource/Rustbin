@@ -21,6 +21,7 @@ PACKAGE: Path = Path(__file__).parent
 
 class Variables:
     target: str = "TARGET"
+    shim:   str = "SHIM"
 
 class System(str, Enum):
     Linux:   str = "linux"
