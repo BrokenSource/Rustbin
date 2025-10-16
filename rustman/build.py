@@ -10,6 +10,8 @@ from pathlib import Path
 
 from attrs import define
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+from hatchling.metadata.plugin.interface import MetadataHookInterface
+from requests import Response
 from requests_cache import CachedSession
 
 
@@ -119,8 +121,11 @@ class Target:
 
     def rustup_bytes(self) -> bytes:
         """Cached contents of a rustup download"""
-        if (response := SESSION.get(self.rustup_url)).status_code != 200:
-            raise RuntimeError(f"Failed to download {self.rustup_url}")
+        response: Response = SESSION.get(self.rustup_url)
+
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to download {self.rustup_url} ({response.status_code})")
+
         return response.content
 
     def tempfile(self, name: str) -> Path:
@@ -135,6 +140,10 @@ class Target:
 
 # ---------------------------------------------------------------------------- #
 # Hatchling build hook
+
+class MetadataHook(MetadataHookInterface):
+    def update(self, metadata: dict) -> None:
+        pass
 
 class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:

@@ -6,7 +6,7 @@ import rustman
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: rustman <shim> [args...]")
+        print(f"Usage: {__package__} <shim> [args...]")
         sys.exit(0)
 
     # Unpack arguments neat way

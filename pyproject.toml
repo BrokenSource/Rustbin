@@ -5,6 +5,7 @@ GitHub = "https://github.com/BrokenSource/Rustman"
 name        = "rustman"
 description = "Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
+dynamic     = ["keywords"]
 version     = "0.2.0"
 readme      = ".github/readme.md"
 license     = {text="MIT OR Apache-2.0"}
@@ -25,6 +26,9 @@ build-backend = "hatchling.build"
 packages = ["rustman"]
 exclude = ["*.rs"]
 
+[tool.hatch.metadata.hooks.custom]
+path = "rustman/build.py"
+
 [tool.hatch.build.hooks.custom]
 path = "rustman/build.py"
 dependencies = [
@@ -39,7 +43,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "hatchling",
     "requests-cache",
+    "hatchling",
     "attrs",
 ]
