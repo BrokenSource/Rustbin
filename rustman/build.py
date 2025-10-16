@@ -53,11 +53,11 @@ SHIMS: list[str] = [
 # Common code
 
 class Environment:
-    version: str = "RUSTUP_VERSION"
-    triple:  str = "RUSTUP_TRIPLE"
-    tools:   str = "RUSTUP_TOOLS"
-    suffix:  str = "RUSTUP_SUFFIX"
-    wheel:   str = "RUSTUP_WHEEL"
+    version: str = "RUSTMAN_VERSION"
+    triple:  str = "RUSTMAN_TRIPLE"
+    toolch:  str = "RUSTMAN_TOOLCHAIN"
+    suffix:  str = "RUSTMAN_SUFFIX"
+    wheel:   str = "RUSTMAN_WHEEL"
 
 @define
 class Target:
@@ -68,7 +68,7 @@ class Target:
     triple: str = os.environ.get(Environment.triple, "")
     """Platform https://doc.rust-lang.org/nightly/rustc/platform-support.html"""
 
-    tools: str = os.environ.get(Environment.tools, None)
+    toolch: str = os.environ.get(Environment.toolch, None)
     """Rustup toolchain to compile the shims with, defaults to 'triple'"""
 
     suffix: str = os.environ.get(Environment.suffix, "")
@@ -78,12 +78,13 @@ class Target:
     """Platform https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/"""
 
     def __attrs_post_init__(self):
-        self.tools = (self.tools or self.triple)
+        self.toolch = (self.toolch or self.triple)
 
+        # Idea: Infer options from the host? but needs working rustup..
         for (name, value) in (
             (Environment.version, self.version),
             (Environment.triple,  self.triple),
-            (Environment.tools,   self.tools),
+            (Environment.toolch,  self.toolch),
             (Environment.wheel,   self.wheel),
         ):
             if not bool(value):
@@ -101,7 +102,7 @@ class Target:
         os.environ.update({
             Environment.version: self.version,
             Environment.triple:  self.triple,
-            Environment.tools:   self.tools,
+            Environment.toolch:  self.toolch,
             Environment.suffix:  self.suffix,
             Environment.wheel:   self.wheel,
         })
@@ -152,16 +153,16 @@ class BuildHook(BuildHookInterface):
         # Build rust shims
 
         # Build the rust project, chicken and egg problem!
-        subprocess.run(("rustup", "target", "add", self.target.tools))
+        subprocess.run(("rustup", "target", "add", self.target.toolch))
         subprocess.check_call((
             "cargo", "zigbuild", "--release",
             "--manifest-path", Dirs.project/"Cargo.toml",
-            "--target", self.target.tools,
+            "--target", self.target.toolch,
             "--target-dir", Dirs.build,
         ), cwd=Dirs.project)
 
         # Find the compiled binary
-        compiled = Dirs.build/self.target.tools/"release"/self.target.exe("rustman")
+        compiled = Dirs.build/self.target.toolch/"release"/self.target.exe("rustman")
 
         # Pack all shims in the package
         for name in SHIMS:
@@ -212,7 +213,7 @@ TARGETS: tuple[Target] = (
     # Works, awaiting general adoption
     # Target(
     #     triple="aarch64-pc-windows-msvc",
-    #     chain="aarch64-pc-windows-gnullvm",
+    #     toolch="aarch64-pc-windows-gnullvm",
     #     wheel="win_arm64",
     #     suffix=".exe"
     # ),
