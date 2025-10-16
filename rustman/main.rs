@@ -8,36 +8,44 @@ use std::process::exit;
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
 
+/// Environment variable takes precedence over argv[0]
+const RUSTUP_FORCE_ARG0: &str = "RUSTUP_FORCE_ARG0";
+
 fn main() {
+    let executable = current_exe()
+        .expect("Failed to get executable path");
+
+    // Universal file name to proxy
+    let shim = executable
+        .with_extension("")
+        .file_name()
+        .expect("Failed to get executable name");
 
     // Both are bundled on venv/bin
-    let rustup = current_exe()
-        .expect("Failed to get executable path")
-        .parent()
+    let rustup = executable.parent()
         .expect("Failed to get executable parent")
         .join("rustup-init")
         .with_extension(EXE_SUFFIX);
 
-    // Warn: Compile-time required variable
-    // Environment takes precedence over process name
-    unsafe {set_var("RUSTUP_FORCE_ARG0", env!("SHIM"))}
-
     // Windows must create a new process
     if cfg!(windows) {
-        let error = Command::new(rustup)
+        let call = Command::new(rustup)
+            .env(RUSTUP_FORCE_ARG0, shim)
             .args(args().skip(1))
             .status();
-        if let Err(e) = error {
-            eprintln!("Failed to execute rustup: {}", e);
+        if let Err(e) = call {
+            eprintln!("Failed to execute shim: {}", e);
             exit(1);
         }
 
-    // Unix-like replaces the current process
+    // Unix-like can replace the current process
     } else {
         let error = Command::new(rustup)
+            .env(RUSTUP_FORCE_ARG0, shim)
             .args(args().skip(1))
             .exec();
-        eprintln!("Failed to execute rustup: {}", error);
+        // exec does not return on success
+        eprintln!("Failed to execute shim: {}", error);
         exit(1);
     }
 }
