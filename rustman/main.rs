@@ -1,5 +1,5 @@
 use std::env::args;
-use std::env::consts::EXE_SUFFIX;
+use std::env::consts::EXE_EXTENSION;
 use std::env::current_exe;
 use std::process::Command;
 use std::process::exit;
@@ -25,7 +25,7 @@ fn main() {
     let rustup = executable.parent()
         .expect("Failed to get executable parent")
         .join("rustup-init")
-        .with_extension(EXE_SUFFIX)
+        .with_extension(EXE_EXTENSION)
         .to_owned();
 
     // Windows must create a new process
