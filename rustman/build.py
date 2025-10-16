@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from copy import deepcopy
 from pathlib import Path
 
 from attrs import define
@@ -97,15 +98,15 @@ class Target:
         """Get a platform specific executable name"""
         return f"{name}{self.suffix}"
 
-    def export(self) -> None:
-        """Export configuration to environment"""
-        os.environ.update({
+    def export(self) -> dict:
+        """Export configuration as dict"""
+        return {
             Environment.version: self.version,
             Environment.triple:  self.triple,
             Environment.toolch:  self.toolch,
             Environment.suffix:  self.suffix,
             Environment.wheel:   self.wheel,
-        })
+        }
 
     @property
     def rustup_url(self) -> str:
@@ -162,7 +163,10 @@ class BuildHook(BuildHookInterface):
         ), cwd=Dirs.project)
 
         # Find the compiled binary
-        compiled = Dirs.build/self.target.toolch/"release"/self.target.exe("rustman")
+        compiled = Dirs.build.joinpath(
+            self.target.toolch, "release",
+            self.target.exe("rustman")
+        )
 
         # Pack all shims in the package
         for name in SHIMS:
@@ -221,9 +225,11 @@ TARGETS: tuple[Target] = (
 
 if __name__ == '__main__':
     for target in TARGETS:
-        target.export()
+        environment = deepcopy(os.environ)
+        environment.update(target.export())
         subprocess.check_call(
             cwd=Dirs.project,
+            env=environment,
             args=(
                 sys.executable, "-m", "uv",
                 "build", "--wheel",

@@ -29,7 +29,7 @@ rustman.cargo("--version")
 rustman.cargo("run", cwd="my-rust-project")
 ```
 
-<sup><i>Note: This project is not affiliated with the Rust project.</i></sup>
+<sup><i><b>Note:</b> This project is not affiliated with the Rust project.</i></sup>
 
 ## 📦 Installation
 
@@ -55,6 +55,8 @@ dependencies = ["rustman"]
 > $ export RUSTMAN_WHEEL="manylinux_2_17_ppc64"
 > $ uv build --wheel
 > ```
+>
+> Open issues to tell interest in more platforms!
 
 ## 🚀 Speeds
 
