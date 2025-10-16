@@ -1,14 +1,13 @@
 import shutil
 import subprocess
-from functools import cache, partial
+from functools import partial
 from subprocess import CompletedProcess
 
-_which: callable = cache(shutil.which)
 
-# Todo: Ensure the venv bin directory is on path
+# Todo: Ensure the venv bin directory is on path or get it directly
 def shim(*args: str, proxy: str, **kwargs) -> CompletedProcess:
     return subprocess.run((
-        _which(proxy),
+        shutil.which(proxy),
         *map(str, args),
     ), **kwargs)
 
