@@ -1,7 +1,6 @@
 use std::env::args;
 use std::env::consts::EXE_SUFFIX;
 use std::env::current_exe;
-use std::env::set_var;
 use std::process::Command;
 use std::process::exit;
 
@@ -19,16 +18,18 @@ fn main() {
     let shim = executable
         .with_extension("")
         .file_name()
-        .expect("Failed to get executable name");
+        .expect("Failed to get executable name")
+        .to_owned();
 
     // Both are bundled on venv/bin
     let rustup = executable.parent()
         .expect("Failed to get executable parent")
         .join("rustup-init")
-        .with_extension(EXE_SUFFIX);
+        .with_extension(EXE_SUFFIX)
+        .to_owned();
 
     // Windows must create a new process
-    if cfg!(windows) {
+    #[cfg(windows)] {
         let call = Command::new(rustup)
             .env(RUSTUP_FORCE_ARG0, shim)
             .args(args().skip(1))
@@ -37,14 +38,14 @@ fn main() {
             eprintln!("Failed to execute shim: {}", e);
             exit(1);
         }
+    }
 
     // Unix-like can replace the current process
-    } else {
+    #[cfg(not(windows))] {
         let error = Command::new(rustup)
             .env(RUSTUP_FORCE_ARG0, shim)
             .args(args().skip(1))
             .exec();
-        // exec does not return on success
         eprintln!("Failed to execute shim: {}", error);
         exit(1);
     }

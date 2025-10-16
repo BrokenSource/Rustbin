@@ -1,7 +1,12 @@
 [package]
-name    = "rustman"
-version = "1.0.0"
-edition = "2024"
+name        = "rustman"
+version     = "0.2.0"
+authors     = ["Tremeschin"]
+description = "Fast rustup shims for python"
+repository  = "https://github.com/BrokenSource/Rustman"
+readme      = ".github/readme.md"
+license     = "MIT OR Apache-2.0"
+edition     = "2024"
 
 [[bin]]
 name = "rustman"
