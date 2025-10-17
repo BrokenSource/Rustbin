@@ -11,6 +11,7 @@ def main():
 
     # Unpack arguments neat way
     python, shim, *args = sys.argv
+    shim = shim.replace("-", "_")
 
     if not (method := getattr(rustman, shim, None)):
         raise ValueError(f"Shim does not exist: {shim}")

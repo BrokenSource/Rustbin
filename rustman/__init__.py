@@ -12,7 +12,6 @@ def shim(*args: str, proxy: str, **kwargs) -> CompletedProcess:
     ), **kwargs)
 
 # Export all the shims as python functions
-init          = partial(shim, proxy="rustup-init")
 cargo         = partial(shim, proxy="cargo")
 cargo_clippy  = partial(shim, proxy="cargo-clippy")
 cargo_fmt     = partial(shim, proxy="cargo-fmt")
@@ -26,3 +25,5 @@ rust_lldb     = partial(shim, proxy="rust-lldb")
 rustc         = partial(shim, proxy="rustc")
 rustdoc       = partial(shim, proxy="rustdoc")
 rustfmt       = partial(shim, proxy="rustfmt")
+rustup        = partial(shim, proxy="rustup")
+rustup_init   = partial(shim, proxy="rustup-init")
