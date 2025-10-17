@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "rustman"
-version = "0.2.0"
+name = "rustbin"
+version = "0.0.0"

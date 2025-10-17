@@ -1,7 +1,7 @@
 import sys
 from functools import partial
 
-import rustman
+import rustbin
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
     python, shim, *args = sys.argv
     shim = shim.replace("-", "_")
 
-    if not (method := getattr(rustman, shim, None)):
+    if not (method := getattr(rustbin, shim, None)):
         raise ValueError(f"Shim does not exist: {shim}")
 
     # Shims are always a partial object

@@ -24,7 +24,7 @@ jobs:
 
       - name: Make wheels
         if: ${{inputs.wheels || inputs.pypi}}
-        run: uv run rustman/build.py
+        run: uv run rustbin/build.py
 
       - name: Upload wheels
         if: ${{inputs.wheels || inputs.pypi}}

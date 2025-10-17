@@ -56,11 +56,11 @@ SHIMS: list[str] = [
 # Common code
 
 class Environment:
-    version: str = "RUSTMAN_VERSION"
-    triple:  str = "RUSTMAN_TRIPLE"
-    toolch:  str = "RUSTMAN_TOOLCHAIN"
-    suffix:  str = "RUSTMAN_SUFFIX"
-    wheel:   str = "RUSTMAN_WHEEL"
+    version: str = "RUSTBIN_VERSION"
+    triple:  str = "RUSTBIN_TRIPLE"
+    toolch:  str = "RUSTBIN_TOOLCHAIN"
+    suffix:  str = "RUSTBIN_SUFFIX"
+    wheel:   str = "RUSTBIN_WHEEL"
 
 @define
 class Target:
@@ -168,7 +168,7 @@ class BuildHook(BuildHookInterface):
         # Find the compiled binary
         compiled = Dirs.build.joinpath(
             self.target.toolch, "release",
-            self.target.exe("rustman")
+            self.target.exe("rustbin")
         )
 
         # Pack all shims in the package

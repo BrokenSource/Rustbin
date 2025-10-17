@@ -2,13 +2,13 @@
 > 👷‍♂️ Under construction, no releases exists yet 🚧
 
 <div align="center">
-  <!-- <img src="https://raw.githubusercontent.com/BrokenSource/Rustman/main/rustman/resources/images/logo.png" width="210"> -->
-  <h1>Rustman</h1>
+  <!-- <img src="https://raw.githubusercontent.com/BrokenSource/Rustbin/main/rustbin/resources/images/logo.png" width="210"> -->
+  <h1>Rustbin</h1>
   <p>Fast rustup shims for python</p>
-  <a href="https://pypi.org/project/rustman/"><img src="https://img.shields.io/pypi/v/rustman?label=PyPI&color=blue"></a>
-  <a href="https://pypi.org/project/rustman/"><img src="https://img.shields.io/pypi/dw/rustman?label=Installs&color=blue"></a>
-  <a href="https://github.com/BrokenSource/Rustman/"><img src="https://img.shields.io/github/v/tag/BrokenSource/Rustman?label=GitHub&color=orange"></a>
-  <a href="https://github.com/BrokenSource/Rustman/stargazers/"><img src="https://img.shields.io/github/stars/BrokenSource/Rustman?label=Stars&style=flat&color=orange"></a>
+  <a href="https://pypi.org/project/rustbin/"><img src="https://img.shields.io/pypi/v/rustbin?label=PyPI&color=blue"></a>
+  <a href="https://pypi.org/project/rustbin/"><img src="https://img.shields.io/pypi/dw/rustbin?label=Installs&color=blue"></a>
+  <a href="https://github.com/BrokenSource/Rustbin/"><img src="https://img.shields.io/github/v/tag/BrokenSource/Rustbin?label=GitHub&color=orange"></a>
+  <a href="https://github.com/BrokenSource/Rustbin/stargazers/"><img src="https://img.shields.io/github/stars/BrokenSource/Rustbin?label=Stars&style=flat&color=orange"></a>
   <a href="https://discord.gg/KjqvcYwRHm"><img src="https://img.shields.io/discord/1184696441298485370?label=Discord&style=flat&color=purple"></a>
   <br>
   <br>
@@ -16,28 +16,28 @@
 
 ## 🔥 Description
 
-Rustman provides [rustup](https://rustup.rs/) and all of its proxies [(1)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [(2)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124) in a convenient python package.
+Rustbin provides [rustup](https://rustup.rs/) and all of its proxies [(1)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [(2)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124) in a convenient python package.
 
 ```python
-import rustman
+import rustbin
 
 # Install the host's rust toolchain
-rustman.rustup("default", "stable")
+rustbin.rustup("default", "stable")
 
 # Compile a project, run commands
-rustman.cargo("--version")
-rustman.cargo("run", cwd="my-rust-project")
+rustbin.cargo("--version")
+rustbin.cargo("run", cwd="my-rust-project")
 ```
 
 <sup><i><b>Note:</b> This project is not affiliated with the Rust project.</i></sup>
 
 ## 📦 Installation
 
-Rustman is available on [PyPI](https://pypi.org/project/rustman/) and can be added to your `pyproject.toml`:
+Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be added to your `pyproject.toml`:
 
 ```toml
 [project]
-dependencies = ["rustman"]
+dependencies = ["rustbin"]
 ```
 
 (...)
@@ -50,9 +50,9 @@ dependencies = ["rustman"]
 > You can either install [rustup](https://rustup.rs/) externally or set a few environment variables:
 >
 > ```sh
-> $ export RUSTMAN_TRIPLE=powerpc-unknown-linux-gnu
-> $ export RUSTMAN_SUFFIX=""
-> $ export RUSTMAN_WHEEL="manylinux_2_17_ppc64"
+> $ export RUSTBIN_TRIPLE=powerpc-unknown-linux-gnu
+> $ export RUSTBIN_SUFFIX=""
+> $ export RUSTBIN_WHEEL="manylinux_2_17_ppc64"
 > $ uv build --wheel
 > ```
 >
@@ -60,7 +60,7 @@ dependencies = ["rustman"]
 
 ## 🚀 Speeds
 
-Rustman bundles a small (rust) program to spawn shims faster than `[project.scripts]` ever could:
+Rustbin bundles a small (rust) program to spawn shims faster than `[project.scripts]` ever could:
 
 ```sh
 # Note: /bin/cargo is effectively a zero-cost symlink
@@ -80,5 +80,5 @@ Less than a millisecond to call a shim, compared to ~80ms for a python script �
 
 ## ⚖️ License
 
-Rustman is dual-licensed under the MIT or Apache-2.0 licenses at your option.
+Rustbin is dual-licensed under the MIT or Apache-2.0 licenses at your option.
 

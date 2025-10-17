@@ -1,12 +1,12 @@
 [project.urls]
-GitHub = "https://github.com/BrokenSource/Rustman"
+GitHub = "https://github.com/BrokenSource/Rustbin"
 
 [project]
-name        = "rustman"
+name        = "rustbin"
 description = "Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
 dynamic     = ["keywords"]
-version     = "0.2.0"
+version     = "1.0.0"
 readme      = ".github/readme.md"
 license     = {text="MIT OR Apache-2.0"}
 requires-python = ">=3,<4"
@@ -16,21 +16,21 @@ requires-python = ">=3,<4"
 managed = false
 
 [project.scripts]
-rustman = "rustman.__main__:main"
+rustbin = "rustbin.__main__:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["rustman"]
+packages = ["rustbin"]
 exclude = ["*.rs"]
 
 [tool.hatch.metadata.hooks.custom]
-path = "rustman/build.py"
+path = "rustbin/build.py"
 
 [tool.hatch.build.hooks.custom]
-path = "rustman/build.py"
+path = "rustbin/build.py"
 dependencies = [
     # Networking, helpers
     "requests-cache",

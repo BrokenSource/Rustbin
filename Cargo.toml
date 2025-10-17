@@ -1,16 +1,17 @@
 [package]
-name        = "rustman"
-version     = "0.2.0"
+name        = "rustbin"
+version     = "1.0.0"
 authors     = ["Tremeschin"]
 description = "Fast rustup shims for python"
-repository  = "https://github.com/BrokenSource/Rustman"
+repository  = "https://github.com/BrokenSource/Rustbin"
 readme      = ".github/readme.md"
 license     = "MIT OR Apache-2.0"
 edition     = "2024"
+publish     = false
 
 [[bin]]
-name = "rustman"
-path = "rustman/main.rs"
+name = "rustbin"
+path = "rustbin/main.rs"
 
 [profile.dev]
 strip = true
