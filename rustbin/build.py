@@ -1,6 +1,7 @@
 """
 This file is both a hatchling hook and a build script
 """
+import contextlib
 import os
 import subprocess
 import sys
@@ -14,6 +15,8 @@ from hatchling.metadata.plugin.interface import MetadataHookInterface
 from requests import Response
 from requests_cache import CachedSession
 
+__package__: str = "rustbin"
+"""Package name, must match Cargo.toml"""
 
 class Dirs:
 
@@ -57,16 +60,21 @@ SHIMS: list[str] = [
 
 class Environment:
     version: str = "RUSTBIN_VERSION"
+    compile: str = "RUSTBIN_COMPILE"
     triple:  str = "RUSTBIN_TRIPLE"
     toolch:  str = "RUSTBIN_TOOLCHAIN"
     suffix:  str = "RUSTBIN_SUFFIX"
     wheel:   str = "RUSTBIN_WHEEL"
+    zig:     str = "RUSTBIN_ZIG"
 
 @define
 class Target:
 
     version: str = os.environ.get(Environment.version, "1.28.2")
     """Rustup version https://github.com/rust-lang/rustup/tags"""
+
+    compile: bool = os.environ.get(Environment.compile, "0") == "1"
+    """Use faster shims with a compiled rust binary"""
 
     triple: str = os.environ.get(Environment.triple, "")
     """Platform https://doc.rust-lang.org/nightly/rustc/platform-support.html"""
@@ -80,12 +88,11 @@ class Target:
     wheel: str = os.environ.get(Environment.wheel, "none")
     """Platform https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/"""
 
+    zig: bool = os.environ.get(Environment.zig, "1") == "1"
+    """Use cargo-zigbuild to compile the rust shims"""
+
     def __attrs_post_init__(self):
         self.toolch = (self.toolch or self.triple)
-
-    @property
-    def skip(self) -> bool:
-        return not bool(self.triple)
 
     def exe(self, name: str) -> str:
         """Get a platform specific executable name"""
@@ -95,15 +102,17 @@ class Target:
         """Export configuration as dict"""
         return {
             Environment.version: self.version,
+            Environment.compile: str(int(self.compile)),
             Environment.triple:  self.triple,
             Environment.toolch:  self.toolch,
             Environment.suffix:  self.suffix,
             Environment.wheel:   self.wheel,
+            Environment.zig:     str(int(self.zig)),
         }
 
     @property
     def rustup_url(self) -> str:
-        """Download link for rustup"""
+        """Download url for rustup"""
         return "/".join((
             "https://static.rust-lang.org/rustup/archive",
             self.version, self.triple,
@@ -134,107 +143,150 @@ class Target:
 
 class MetadataHook(MetadataHookInterface):
     def update(self, metadata: dict) -> None:
-        pass
+        self.target = Target()
+
+        # Use regular project scripts
+        if not self.target.compile:
+            for name in SHIMS:
+                name   = name.replace("-", "_")
+                method = f"{__package__}.__main__:{name}"
+                metadata["scripts"][name] = method
 
 class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         self.target = Target()
 
-        if self.target.skip:
+        # Wheels are always platform specific
+        build["tag"] = f"py3-none-{self.target.wheel}"
+        build["pure_python"] = False
+
+        # No rustup requested
+        if not self.target.triple:
             return None
 
         # ---------------------------- #
         # Bundle rustup
 
-        rustup: Path = self.target.download()
-
         # Pack rustup in the venv bin directory
-        build["shared_scripts"][str(rustup)] = self.target.exe("rustup-init")
-        build["tag"] = f"py3-none-{self.target.wheel}"
-        build["pure_python"] = False
+        build["shared_scripts"][self.target.download()] = \
+            self.target.exe("rustup-init")
 
         # ---------------------------- #
         # Build rust shims
 
-        # Build the rust project, chicken and egg problem!
-        subprocess.run(("rustup", "target", "add", self.target.toolch))
-        subprocess.check_call((
-            "cargo", "zigbuild", "--release",
-            "--manifest-path", Dirs.project/"Cargo.toml",
-            "--target", self.target.toolch,
-            "--target-dir", Dirs.build,
-        ), cwd=Dirs.project)
+        # Build fast shims, chicken and egg problem!
+        if self.target.compile:
+            subprocess.run(("rustup", "target", "add", self.target.toolch))
+            subprocess.check_call((
+                "cargo", ("zig"*self.target.zig + "build"), "--release",
+                "--manifest-path", (Dirs.project/"Cargo.toml"),
+                "--target", self.target.toolch,
+                "--target-dir", Dirs.build,
+            ), cwd=Dirs.project)
 
-        # Find the compiled binary
-        compiled = Dirs.build.joinpath(
-            self.target.toolch, "release",
-            self.target.exe("rustbin")
-        )
+            # Find the compiled binary
+            binary = Dirs.build.joinpath(
+                self.target.toolch, "release",
+                self.target.exe(__package__)
+            )
 
-        # Pack all shims in the package
-        for name in SHIMS:
-            ephemeral = self.target.tempfile(name)
-            ephemeral.write_bytes(compiled.read_bytes())
-            build["shared_scripts"][str(ephemeral)] = self.target.exe(name)
+            # Pack all shims in the package
+            for name in SHIMS:
+                ephemeral = self.target.tempfile(name)
+                ephemeral.write_bytes(binary.read_bytes())
+                build["shared_scripts"][str(ephemeral)] = self.target.exe(name)
 
     # Cleanup temporary files
     def finalize(self, *ig, **nore) -> None:
-        if self.target.skip:
-            return None
         for name in (*SHIMS, "rustup"):
-            os.remove(self.target.tempfile(name))
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(self.target.tempfile(name))
 
 # --------------------------------------------------------------------------- #
 # Build script
 
+# Note: Items are somewhat ordered by popularity
 TARGETS: tuple[Target] = (
 
-    # Linux
-
-    Target(
-        triple="x86_64-unknown-linux-gnu",
-        wheel="manylinux_2_17_x86_64"
-    ),
-    Target(
-        triple="aarch64-unknown-linux-gnu",
-        wheel="manylinux_2_17_aarch64"
-    ),
-
-    # MacOS
-
-    Target(
-        triple="x86_64-apple-darwin",
-        wheel="macosx_10_9_x86_64"
-    ),
-    Target(
-        triple="aarch64-apple-darwin",
-        wheel="macosx_11_0_arm64"
-    ),
-
+    # -------------------------------- #
     # Windows
 
     Target(
         triple="x86_64-pc-windows-gnu",
         wheel="win_amd64",
-        suffix=".exe"
+        suffix=".exe",
+        compile=True,
+    ),
+    Target(
+        triple="aarch64-pc-windows-msvc",
+        toolch="aarch64-pc-windows-gnullvm",
+        wheel="win_arm64",
+        suffix=".exe",
+        compile=True,
+    ),
+    Target(
+        triple="i686-pc-windows-msvc",
+        toolch="i686-pc-windows-gnu",
+        wheel="win32",
+        suffix=".exe",
+        compile=False,
     ),
 
-    # Works, awaiting general adoption
-    # Target(
-    #     triple="aarch64-pc-windows-msvc",
-    #     toolch="aarch64-pc-windows-gnullvm",
-    #     wheel="win_arm64",
-    #     suffix=".exe"
-    # ),
+    # -------------------------------- #
+    # Linux
+
+    Target(
+        triple="x86_64-unknown-linux-gnu",
+        wheel="manylinux_2_17_x86_64",
+        compile=True,
+    ),
+    Target(
+        triple="aarch64-unknown-linux-gnu",
+        wheel="manylinux_2_17_aarch64",
+        compile=True,
+    ),
+    Target(
+        triple="i686-unknown-linux-gnu",
+        wheel="manylinux_2_17_i686",
+        compile=True,
+    ),
+    Target(
+        triple="x86_64-unknown-linux-musl",
+        wheel="musllinux_2_17_x86_64",
+        compile=True,
+    ),
+
+    # -------------------------------- #
+    # MacOS
+
+    Target(
+        triple="aarch64-apple-darwin",
+        wheel="macosx_11_0_arm64",
+        compile=True,
+    ),
+    Target(
+        triple="x86_64-apple-darwin",
+        wheel="macosx_10_9_x86_64",
+        compile=True,
+    ),
+
+    # -------------------------------- #
+    # BSD
+
+    Target(
+        triple="x86_64-unknown-freebsd",
+        wheel="freebsd_12_0_x86_64",
+        compile=False,
+    ),
 )
 
 if __name__ == '__main__':
     for target in TARGETS:
-        environment = deepcopy(os.environ)
-        environment.update(target.export())
+        environ = deepcopy(os.environ)
+        environ.update(target.export())
         subprocess.check_call(
             cwd=Dirs.project,
-            env=environment,
+            env=environ,
             args=(
                 sys.executable, "-m", "uv",
                 "build", "--wheel",

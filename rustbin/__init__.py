@@ -5,6 +5,7 @@ from subprocess import CompletedProcess
 
 
 # Todo: Ensure the venv bin directory is on path or get it directly
+# though, the first requirement _is_ part of a proper venv setup
 def shim(*args: str, proxy: str, **kwargs) -> CompletedProcess:
     return subprocess.run((
         shutil.which(proxy),

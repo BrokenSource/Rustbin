@@ -74,9 +74,9 @@ $ hyperfine .venv/bin/cargo
   Range (min … max):    30.5 ms …  32.7 ms    100 runs
 ```
 
-<sup><b>Note:</b> Full benchmark command was <code>nice -20 taskset -c 2 hyperfine -w 50 -r 100 -N (command)</code></sup>
+> Less than a millisecond to call a shim, compared to ~105ms for a python script 🚀
 
-Less than a millisecond to call a shim, compared to ~80ms for a python script 🚀
+<sup><b>Note:</b> Full benchmark command was <code>nice -20 taskset -c 2 hyperfine -w 50 -r 100 -N (command)</code></sup>
 
 ## ⚖️ License
 
