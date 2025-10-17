@@ -83,18 +83,9 @@ class Target:
     def __attrs_post_init__(self):
         self.toolch = (self.toolch or self.triple)
 
-        # Idea: Infer options from the host? but needs working rustup..
-        for (name, value) in (
-            (Environment.version, self.version),
-            (Environment.triple,  self.triple),
-            (Environment.toolch,  self.toolch),
-            (Environment.wheel,   self.wheel),
-        ):
-            if not bool(value):
-                raise RuntimeError((
-                    f"Missing {name} variable, source installations of rustman "
-                    "require manual and explicit target configuration"
-                ))
+    @property
+    def skip(self) -> bool:
+        return not bool(self.triple)
 
     def exe(self, name: str) -> str:
         """Get a platform specific executable name"""
@@ -149,6 +140,9 @@ class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         self.target = Target()
 
+        if self.target.skip:
+            return None
+
         # ---------------------------- #
         # Bundle rustup
 
@@ -185,6 +179,8 @@ class BuildHook(BuildHookInterface):
 
     # Cleanup temporary files
     def finalize(self, *ig, **nore) -> None:
+        if self.target.skip:
+            return None
         for name in (*SHIMS, "rustup"):
             os.remove(self.target.tempfile(name))
 

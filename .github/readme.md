@@ -21,7 +21,7 @@ Rustman provides [rustup](https://rustup.rs/) and all of its proxies [(1)](https
 ```python
 import rustman
 
-# Install the host's rust toolchaion
+# Install the host's rust toolchain
 rustman.rustup("default", "stable")
 
 # Compile a project, run commands
@@ -43,11 +43,11 @@ dependencies = ["rustman"]
 (...)
 
 > [!IMPORTANT]
-> As mapping system information from [Python Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package would balloon in size to include all platforms, only **Tier 1** hosts are provided on PyPI.
+> As mapping system information from [Python Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package would balloon in size to include all platforms, primarily **Tier 1** hosts are provided on PyPI.
 >
-> Attempting to `pip install` on a "unknown" platform will fail on building a Source Distribution (sdist) without environment variables, and is a chicken-and-egg problem needing Rust to build shims.
+> Attempting to `pip install` on a "unknown" platform will buid an empty Source Distribution (sdist) without binaries - per chicken-and-egg problem needing Rust to build the package.
 >
-> Shall your use allow it, you can build a wheel for your platform and deploy it with:
+> You can either install [rustup](https://rustup.rs/) externally or set a few environment variables:
 >
 > ```sh
 > $ export RUSTMAN_TRIPLE=powerpc-unknown-linux-gnu
