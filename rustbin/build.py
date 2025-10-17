@@ -16,7 +16,7 @@ from requests import Response
 from requests_cache import CachedSession
 
 __package__: str = "rustbin"
-"""Package name, must match Cargo.toml"""
+"""Package name, must match Cargo.toml [[bin]]"""
 
 class Dirs:
 
@@ -60,7 +60,6 @@ SHIMS: list[str] = [
 
 class Environment:
     version: str = "RUSTBIN_VERSION"
-    compile: str = "RUSTBIN_COMPILE"
     triple:  str = "RUSTBIN_TRIPLE"
     toolch:  str = "RUSTBIN_TOOLCHAIN"
     suffix:  str = "RUSTBIN_SUFFIX"
@@ -72,9 +71,6 @@ class Target:
 
     version: str = os.environ.get(Environment.version, "1.28.2")
     """Rustup version https://github.com/rust-lang/rustup/tags"""
-
-    compile: bool = os.environ.get(Environment.compile, "0") == "1"
-    """Use faster shims with a compiled rust binary"""
 
     triple: str = os.environ.get(Environment.triple, "")
     """Platform https://doc.rust-lang.org/nightly/rustc/platform-support.html"""
@@ -102,7 +98,6 @@ class Target:
         """Export configuration as dict"""
         return {
             Environment.version: self.version,
-            Environment.compile: str(int(self.compile)),
             Environment.triple:  self.triple,
             Environment.toolch:  self.toolch,
             Environment.suffix:  self.suffix,
@@ -145,13 +140,6 @@ class MetadataHook(MetadataHookInterface):
     def update(self, metadata: dict) -> None:
         self.target = Target()
 
-        # Use regular project scripts
-        if not self.target.compile:
-            for name in SHIMS:
-                name   = name.replace("-", "_")
-                method = f"{__package__}.__main__:{name}"
-                metadata["scripts"][name] = method
-
 class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         self.target = Target()
@@ -162,6 +150,7 @@ class BuildHook(BuildHookInterface):
 
         # No rustup requested
         if not self.target.triple:
+            print(f"Warn: Missing {Environment.triple}, rustup will not be bundled")
             return None
 
         # ---------------------------- #
@@ -175,26 +164,25 @@ class BuildHook(BuildHookInterface):
         # Build rust shims
 
         # Build fast shims, chicken and egg problem!
-        if self.target.compile:
-            subprocess.run(("rustup", "target", "add", self.target.toolch))
-            subprocess.check_call((
-                "cargo", ("zig"*self.target.zig + "build"), "--release",
-                "--manifest-path", (Dirs.project/"Cargo.toml"),
-                "--target", self.target.toolch,
-                "--target-dir", Dirs.build,
-            ), cwd=Dirs.project)
+        subprocess.run(("rustup", "target", "add", self.target.toolch))
+        subprocess.check_call((
+            "cargo", ("zig"*self.target.zig + "build"), "--release",
+            "--manifest-path", (Dirs.project/"Cargo.toml"),
+            "--target", self.target.toolch,
+            "--target-dir", Dirs.build,
+        ), cwd=Dirs.project)
 
-            # Find the compiled binary
-            binary = Dirs.build.joinpath(
-                self.target.toolch, "release",
-                self.target.exe(__package__)
-            )
+        # Find the compiled binary
+        binary = Dirs.build.joinpath(
+            self.target.toolch, "release",
+            self.target.exe(__package__)
+        )
 
-            # Pack all shims in the package
-            for name in SHIMS:
-                ephemeral = self.target.tempfile(name)
-                ephemeral.write_bytes(binary.read_bytes())
-                build["shared_scripts"][str(ephemeral)] = self.target.exe(name)
+        # Pack all shims in the package
+        for name in SHIMS:
+            ephemeral = self.target.tempfile(name)
+            ephemeral.write_bytes(binary.read_bytes())
+            build["shared_scripts"][str(ephemeral)] = self.target.exe(name)
 
     # Cleanup temporary files
     def finalize(self, *ig, **nore) -> None:
@@ -215,21 +203,12 @@ TARGETS: tuple[Target] = (
         triple="x86_64-pc-windows-gnu",
         wheel="win_amd64",
         suffix=".exe",
-        compile=True,
     ),
     Target(
         triple="aarch64-pc-windows-msvc",
         toolch="aarch64-pc-windows-gnullvm",
         wheel="win_arm64",
         suffix=".exe",
-        compile=True,
-    ),
-    Target(
-        triple="i686-pc-windows-msvc",
-        toolch="i686-pc-windows-gnu",
-        wheel="win32",
-        suffix=".exe",
-        compile=False,
     ),
 
     # -------------------------------- #
@@ -238,22 +217,18 @@ TARGETS: tuple[Target] = (
     Target(
         triple="x86_64-unknown-linux-gnu",
         wheel="manylinux_2_17_x86_64",
-        compile=True,
     ),
     Target(
         triple="aarch64-unknown-linux-gnu",
         wheel="manylinux_2_17_aarch64",
-        compile=True,
     ),
     Target(
         triple="i686-unknown-linux-gnu",
         wheel="manylinux_2_17_i686",
-        compile=True,
     ),
     Target(
         triple="x86_64-unknown-linux-musl",
         wheel="musllinux_2_17_x86_64",
-        compile=True,
     ),
 
     # -------------------------------- #
@@ -262,22 +237,19 @@ TARGETS: tuple[Target] = (
     Target(
         triple="aarch64-apple-darwin",
         wheel="macosx_11_0_arm64",
-        compile=True,
     ),
     Target(
         triple="x86_64-apple-darwin",
         wheel="macosx_10_9_x86_64",
-        compile=True,
     ),
 
     # -------------------------------- #
     # BSD
 
-    Target(
-        triple="x86_64-unknown-freebsd",
-        wheel="freebsd_12_0_x86_64",
-        compile=False,
-    ),
+    # Target(
+    #     triple="x86_64-unknown-freebsd",
+    #     wheel="freebsd_12_0_x86_64",
+    # ),
 )
 
 if __name__ == '__main__':

@@ -16,20 +16,21 @@
 
 ## 🔥 Description
 
-Rustbin provides [rustup](https://rustup.rs/) and all of its proxies [(1)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [(2)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124) in a convenient python package.
+Rustbin provides [rustup](https://rustup.rs/) and all of its proxies [`(1)`](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [`(2)`](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124) in a convenient python package
 
 ```python
-import rustbin
-
-# Install the host's rust toolchain
-rustbin.rustup("default", "stable")
-
-# Compile a project, run commands
-rustbin.cargo("--version")
-rustbin.cargo("run", cwd="my-rust-project")
+$ tree .venv
+.venv
+├── bin
+│   ├── cargo
+│   ├── rustc
+│   └── rustup-init
+(...)
 ```
 
-<sup><i><b>Note:</b> This project is not affiliated with the Rust project.</i></sup>
+✅ Also check out [Rustman](https://github.com/BrokenSource/Rustman), for python methods, easy cross compilation, management and automation!
+
+<sup><i><b>Note:</b> This project is not affiliated with the Rust project</i></sup>
 
 ## 📦 Installation
 
@@ -40,27 +41,25 @@ Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be add
 dependencies = ["rustbin"]
 ```
 
-(...)
+Versioning of the package follows:
+
+- Same as [rustup](https://github.com/rust-lang/rustup/tags), without rushes to match all upstream releases (at least a month stable)
+- New platforms might be added post-release at any time, and with no version bump
+- Ancient versions _might_ be removed to save space, in case a size grant is not given
 
 > [!IMPORTANT]
-> As mapping system information from [Python Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package would balloon in size to include all platforms, primarily **Tier 1** hosts are provided on PyPI.
 >
-> Attempting to `pip install` on a "unknown" platform will buid an empty Source Distribution (sdist) without binaries - per chicken-and-egg problem needing Rust to build the package.
+> As mapping system information from [Python/Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust Triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package needs rust to build from source, attempting to `pip install` on _"unknown"_ platforms without [prebuilt wheels](https://pypi.org/project/rustbin/#files) on pypi will make an empty one from source without rustup or shims.
 >
-> You can either install [rustup](https://rustup.rs/) externally or set a few environment variables:
->
-> ```sh
-> $ export RUSTBIN_TRIPLE=powerpc-unknown-linux-gnu
-> $ export RUSTBIN_SUFFIX=""
-> $ export RUSTBIN_WHEEL="manylinux_2_17_ppc64"
-> $ uv build --wheel
-> ```
->
-> Open issues to tell interest in more platforms!
+> Your best path is to install [rustup](https://rustup.rs/) externally in such cases, this package essentially becomes a no-op.
+
+Open issues to tell interest in platforms that are actually used, so the package doesn't balloon in size!
 
 ## 🚀 Speeds
 
-Rustbin bundles a small (rust) program to spawn shims faster than `[project.scripts]` ever could:
+Rustbin bundles a small [(rust)](../rustbin/main.rs) program to spawn shims faster than `[project.scripts]` ever could:
+
+> ✅ Less than a millisecond to call a shim, compared to ~105ms for a python script
 
 ```sh
 # Note: /bin/cargo is effectively a zero-cost symlink
@@ -74,11 +73,8 @@ $ hyperfine .venv/bin/cargo
   Range (min … max):    30.5 ms …  32.7 ms    100 runs
 ```
 
-> Less than a millisecond to call a shim, compared to ~105ms for a python script 🚀
-
 <sup><b>Note:</b> Full benchmark command was <code>nice -20 taskset -c 2 hyperfine -w 50 -r 100 -N (command)</code></sup>
 
 ## ⚖️ License
 
-Rustbin is dual-licensed under the MIT or Apache-2.0 licenses at your option.
-
+Rustbin is dual-licensed under the MIT or Apache-2.0 licenses at your option
