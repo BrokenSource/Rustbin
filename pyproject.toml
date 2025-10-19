@@ -5,7 +5,6 @@ GitHub = "https://github.com/BrokenSource/Rustbin"
 name        = "rustbin"
 description = "Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
-dynamic     = ["keywords"]
 version     = "1.28.2"
 readme      = ".github/readme.md"
 license     = {text="MIT OR Apache-2.0"}
@@ -28,18 +27,19 @@ path = "rustbin/build.py"
 [tool.hatch.build.hooks.custom]
 path = "rustbin/build.py"
 dependencies = [
-    # Networking, helpers
-    "requests-cache",
     "attrs",
-    # Easy cross compilation
     "cargo-zigbuild",
-    "ziglang",
+    "requests-cache",
 ]
 
+# Warn: Required to run build.py
 [dependency-groups]
 dev = [
-    "requests-cache",
-    "hatchling",
     "attrs",
+    "hatchling",
+    "requests-cache",
     "uv",
 ]
+
+[tool.ruff.format]
+exclude = ["*"]

@@ -1,12 +1,8 @@
-"""
-This file is both a hatchling hook and a build script
-"""
+"""This file is both a hatchling hook and a build script"""
 import contextlib
 import os
 import subprocess
-import sys
 import tempfile
-from copy import deepcopy
 from pathlib import Path
 
 from attrs import define
@@ -33,7 +29,7 @@ class Dirs:
     temp: Path = Path(tempfile.gettempdir())
 
 # Global requests session
-SESSION = CachedSession(
+SESSION: CachedSession = CachedSession(
     cache_name=Dirs.temp/"rustup.sqlite",
     expire_after=24*3600
 )
@@ -59,6 +55,7 @@ SHIMS: list[str] = [
 # Common code
 
 class Environment:
+    """Centralized variable names"""
     version: str = "RUSTBIN_VERSION"
     triple:  str = "RUSTBIN_TRIPLE"
     toolch:  str = "RUSTBIN_TOOLCHAIN"
@@ -79,7 +76,7 @@ class Target:
     """Rustup toolchain to compile the shims with, defaults to 'triple'"""
 
     suffix: str = os.environ.get(Environment.suffix, "")
-    """File suffix https://doc.rust-lang.org/std/env/consts/index.html"""
+    """Executable suffix https://doc.rust-lang.org/std/env/consts/index.html"""
 
     wheel: str = os.environ.get(Environment.wheel, "none")
     """Platform https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/"""
@@ -124,7 +121,7 @@ class Target:
         return response.content
 
     def tempfile(self, name: str) -> Path:
-        """Ephemeral path for packaging a file"""
+        """Ephemeral unique path for packaging a file"""
         return Dirs.temp/f"{name}-{self.triple}-v{self.version}{self.suffix}"
 
     def download(self) -> Path:
@@ -144,11 +141,11 @@ class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         self.target = Target()
 
-        # Wheels are always platform specific
+        # Make wheels always platform specific, any py3
         build["tag"] = f"py3-none-{self.target.wheel}"
         build["pure_python"] = False
 
-        # No rustup requested
+        # No rustup requested or unset sdist
         if not self.target.triple:
             print(f"Warn: Missing {Environment.triple}, rustup will not be bundled")
             return None
@@ -180,9 +177,9 @@ class BuildHook(BuildHookInterface):
 
         # Pack all shims in the package
         for name in SHIMS:
-            ephemeral = self.target.tempfile(name)
-            ephemeral.write_bytes(binary.read_bytes())
-            build["shared_scripts"][str(ephemeral)] = self.target.exe(name)
+            shim = self.target.tempfile(name)
+            shim.write_bytes(binary.read_bytes())
+            build["shared_scripts"][str(shim)] = self.target.exe(name)
 
     # Cleanup temporary files
     def finalize(self, *ig, **nore) -> None:
@@ -255,10 +252,14 @@ TARGETS: tuple[Target] = (
 
 if __name__ == '__main__':
     for target in TARGETS:
-        environ = deepcopy(os.environ)
+        environ = dict(os.environ)
         environ.update(target.export())
         subprocess.check_call(
             args=("uv", "build", "--wheel"),
             cwd=Dirs.project,
             env=environ,
         )
+    subprocess.check_call(
+        args=("uv", "build", "--sdist"),
+        cwd=Dirs.project,
+    )

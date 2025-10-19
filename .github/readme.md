@@ -33,14 +33,14 @@ $ tree .venv
 
 ## 📦 Installation
 
-Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be added to your `pyproject.toml`:
+Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be added to your `pyproject.toml` or `pip install`ed directly:
 
 ```toml
 [project]
 dependencies = ["rustbin"]
 ```
 
-Versioning of the package follows:
+Versioning of the [package](https://pypi.org/project/rustbin/#history) will follow:
 
 - Same as [rustup](https://github.com/rust-lang/rustup/tags), without rushes to match all upstream releases (at least a month stable).
 - Broken releases might be deleted and re-uploaded as 'post' within a week, if needed.
@@ -51,7 +51,7 @@ Versioning of the package follows:
 >
 > As mapping system information from [Python/Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust Triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package needs rust to build from source, attempting to `pip install` on _"unknown"_ platforms without [prebuilt wheels](https://pypi.org/project/rustbin/#files) on pypi will make an empty one from source without rustup or shims.
 >
-> Your best path is to install [rustup](https://rustup.rs/) externally in such cases, this package essentially becomes a no-op.
+> **Your best path** is to install [rustup](https://rustup.rs/) externally in such cases, this package essentially becomes a no-op.
 
 Open issues to tell interest in platforms that are actually used, so the package doesn't balloon in size!
 
@@ -59,7 +59,7 @@ Open issues to tell interest in platforms that are actually used, so the package
 
 Rustbin bundles a small [(rust)](../rustbin/main.rs) program to spawn shims faster than `[project.scripts]` ever could:
 
-> ✅ Less than a millisecond to call a shim, compared to ~105ms for a python script
+> ✅ Less than a millisecond overhead, compared to ~105ms for a python script
 
 ```sh
 # Note: /bin/cargo is effectively a zero-cost symlink
