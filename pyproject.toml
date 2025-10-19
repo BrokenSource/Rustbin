@@ -19,6 +19,7 @@ managed = false
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# This package is purely bin files
 [tool.hatch.build.targets.wheel]
 exclude = ["*"]
 

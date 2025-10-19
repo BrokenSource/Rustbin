@@ -2,12 +2,10 @@
 > 👷‍♂️ Under construction, no releases exists yet 🚧
 
 <div align="center">
-  <!-- <img src="https://raw.githubusercontent.com/BrokenSource/Rustbin/main/rustbin/resources/images/logo.png" width="210"> -->
   <h1>Rustbin</h1>
   <p>Fast rustup shims for python</p>
   <a href="https://pypi.org/project/rustbin/"><img src="https://img.shields.io/pypi/v/rustbin?label=PyPI&color=blue"></a>
   <a href="https://pypi.org/project/rustbin/"><img src="https://img.shields.io/pypi/dw/rustbin?label=Installs&color=blue"></a>
-  <a href="https://github.com/BrokenSource/Rustbin/"><img src="https://img.shields.io/github/v/tag/BrokenSource/Rustbin?label=GitHub&color=orange"></a>
   <a href="https://github.com/BrokenSource/Rustbin/stargazers/"><img src="https://img.shields.io/github/stars/BrokenSource/Rustbin?label=Stars&style=flat&color=orange"></a>
   <a href="https://discord.gg/KjqvcYwRHm"><img src="https://img.shields.io/discord/1184696441298485370?label=Discord&style=flat&color=purple"></a>
   <br>
@@ -16,9 +14,10 @@
 
 ## 🔥 Description
 
-Rustbin provides [rustup](https://rustup.rs/) and all of its proxies [`(1)`](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [`(2)`](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124) in a convenient python package
+Rustbin provides [rustup](https://rustup.rs/) and all of its proxies `cargo, rustc..` [(1)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/lib.rs#L20-L51) [(2)](https://github.com/rust-lang/rustup/blob/14f134ee3195639bd18d27ecc4b88c3e5d59559c/src/bin/rustup-init.rs#L94-L124)  in a convenient python package.
 
 ```python
+# After installation
 $ tree .venv
 .venv
 ├── bin
@@ -30,7 +29,7 @@ $ tree .venv
 
 ✅ Also check out [Rustman](https://github.com/BrokenSource/Rustman), for python methods, easy cross compilation, management and automation!
 
-<sup><i><b>Note:</b> This project is not affiliated with the Rust project</i></sup>
+<sup><i><b>Note:</b> This is a community repackaging effort with no affiliation to the Rust project.</i></sup>
 
 ## 📦 Installation
 
@@ -43,9 +42,10 @@ dependencies = ["rustbin"]
 
 Versioning of the package follows:
 
-- Same as [rustup](https://github.com/rust-lang/rustup/tags), without rushes to match all upstream releases (at least a month stable)
-- New platforms might be added post-release at any time, and with no version bump
-- Ancient versions _might_ be removed to save space, in case a size grant is not given
+- Same as [rustup](https://github.com/rust-lang/rustup/tags), without rushes to match all upstream releases (at least a month stable).
+- New platforms might be added post-release at any time, and with no version bump.
+- Ancient versions _might_ be removed to save space, in case a [size grant](https://docs.pypi.org/project-management/storage-limits/) is not given.
+- Broken releases might be deleted and re-uploaded as 'post' within a week, if needed.
 
 > [!IMPORTANT]
 >
@@ -77,4 +77,4 @@ $ hyperfine .venv/bin/cargo
 
 ## ⚖️ License
 
-Rustbin is dual-licensed under the MIT or Apache-2.0 licenses at your option
+Rustbin is dual-licensed under the MIT or Apache-2.0 license, at your option.
