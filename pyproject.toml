@@ -11,9 +11,8 @@ readme      = ".github/readme.md"
 license     = {text="MIT OR Apache-2.0"}
 requires-python = ">=3,<4"
 
-# Ignore on monorepo
 [tool.uv]
-managed = false
+check-url = "https://test.pypi.org/simple"
 
 [build-system]
 requires = ["hatchling"]

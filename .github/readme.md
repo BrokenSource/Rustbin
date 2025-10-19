@@ -1,5 +1,5 @@
 > [!WARNING]
-> 👷‍♂️ Under construction, no releases exists yet 🚧
+> Always check the [repository](https://github.com/BrokenSource/Rustbin) for latest readme information.
 
 <div align="center">
   <h1>Rustbin</h1>
@@ -43,9 +43,9 @@ dependencies = ["rustbin"]
 Versioning of the package follows:
 
 - Same as [rustup](https://github.com/rust-lang/rustup/tags), without rushes to match all upstream releases (at least a month stable).
+- Broken releases might be deleted and re-uploaded as 'post' within a week, if needed.
 - New platforms might be added post-release at any time, and with no version bump.
 - Ancient versions _might_ be removed to save space, in case a [size grant](https://docs.pypi.org/project-management/storage-limits/) is not given.
-- Broken releases might be deleted and re-uploaded as 'post' within a week, if needed.
 
 > [!IMPORTANT]
 >

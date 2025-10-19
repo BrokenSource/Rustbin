@@ -246,6 +246,7 @@ TARGETS: tuple[Target] = (
     # -------------------------------- #
     # BSD
 
+    # Fixme: Zigbuild unsupported
     # Target(
     #     triple="x86_64-unknown-freebsd",
     #     wheel="freebsd_12_0_x86_64",
