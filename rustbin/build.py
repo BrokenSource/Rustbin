@@ -36,10 +36,10 @@ SESSION: CachedSession = CachedSession(
 
 # All available rustup shims
 SHIMS: list[str] = [
-    "cargo",
     "cargo-clippy",
     "cargo-fmt",
     "cargo-miri",
+    "cargo",
     "clippy-driver",
     "rls",
     "rust-analyzer",
@@ -49,6 +49,7 @@ SHIMS: list[str] = [
     "rustc",
     "rustdoc",
     "rustfmt",
+    "rustup",
 ]
 
 # ---------------------------------------------------------------------------- #
@@ -125,7 +126,7 @@ class Target:
         return Dirs.temp/f"{name}-{self.triple}-v{self.version}{self.suffix}"
 
     def download(self) -> Path:
-        path = self.tempfile("rustup")
+        path = self.tempfile("rustup-init")
         path.write_bytes(self.rustup_bytes())
         path.chmod(0o755)
         return path
