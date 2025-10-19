@@ -258,10 +258,7 @@ if __name__ == '__main__':
         environ = deepcopy(os.environ)
         environ.update(target.export())
         subprocess.check_call(
+            args=("uv", "build", "--wheel"),
             cwd=Dirs.project,
             env=environ,
-            args=(
-                sys.executable, "-m", "uv",
-                "build", "--wheel",
-            )
         )

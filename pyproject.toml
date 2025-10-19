@@ -31,7 +31,6 @@ dependencies = [
     # Networking, helpers
     "requests-cache",
     "attrs",
-    "uv",
     # Easy cross compilation
     "cargo-zigbuild",
     "ziglang",
@@ -42,4 +41,5 @@ dev = [
     "requests-cache",
     "hatchling",
     "attrs",
+    "uv",
 ]
