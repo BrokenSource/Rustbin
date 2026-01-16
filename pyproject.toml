@@ -5,7 +5,7 @@ GitHub = "https://github.com/BrokenSource/Rustbin"
 name        = "rustbin"
 description = "Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
-version     = "1.28.2"
+version     = "1.28.2.post1"
 readme      = "readme.md"
 license     = {text="MIT OR Apache-2.0"}
 requires-python = ">=3.9"

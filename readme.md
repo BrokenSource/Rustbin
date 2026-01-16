@@ -1,5 +1,5 @@
-> [!WARNING]
-> Always check the [repository](https://github.com/BrokenSource/Rustbin) for latest readme information.
+> [!NOTE]
+> Always check the [repository](https://github.com/BrokenSource/Rustbin) for the latest information.
 
 <div align="center">
   <h1>Rustbin</h1>
