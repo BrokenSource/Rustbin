@@ -1,4 +1,16 @@
 """This file is both a hatchling hook and a build script"""
+
+# /// script
+# dependencies = [
+#   "attrs",
+#   "cargo-zigbuild",
+#   "hatchling",
+#   "requests-cache",
+#   "requests",
+#   "ziglang",
+# ]
+# ///
+
 import contextlib
 import os
 import subprocess
@@ -7,12 +19,17 @@ from pathlib import Path
 
 from attrs import define
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
-from hatchling.metadata.plugin.interface import MetadataHookInterface
 from requests import Response
 from requests_cache import CachedSession
 
 __package__: str = "rustbin"
 """Package name, must match Cargo.toml [[bin]]"""
+
+# Ensure ziglang binary can be found
+with contextlib.suppress(ImportError):
+    import ziglang
+    _ziglang = Path(ziglang.__file__).parent
+    os.environ["PATH"] += f"{os.pathsep}{_ziglang}"
 
 class Dirs:
 
@@ -25,7 +42,6 @@ class Dirs:
     build: Path = project/"target"
     """Rust build directory"""
 
-    # Fixme: Can hatchling provide a tempdir for us?
     temp: Path = Path(tempfile.gettempdir())
 
 # Global requests session
@@ -134,10 +150,6 @@ class Target:
 # ---------------------------------------------------------------------------- #
 # Hatchling build hook
 
-class MetadataHook(MetadataHookInterface):
-    def update(self, metadata: dict) -> None:
-        self.target = Target()
-
 class BuildHook(BuildHookInterface):
     def initialize(self, version: str, build: dict) -> None:
         self.target = Target()
@@ -162,6 +174,7 @@ class BuildHook(BuildHookInterface):
         # Build rust shims
 
         # Build fast shims, chicken and egg problem!
+        subprocess.run(("rustup", "set", "profile", "minimal"))
         subprocess.run(("rustup", "target", "add", self.target.toolch))
         subprocess.check_call((
             "cargo", ("zig"*self.target.zig + "build"), "--release",

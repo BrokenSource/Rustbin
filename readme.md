@@ -23,17 +23,15 @@ $ tree .venv
 ├── bin
 │   ├── cargo
 │   ├── rustc
-│   └── rustup-init
+│   ├── rustup-init
 (...)
 ```
-
-✅ Also check out [Rustman](https://github.com/BrokenSource/Rustman), for python methods, easy cross compilation, management and automation!
 
 <sup><i><b>Note:</b> This is a community repackaging effort with no affiliation to the Rust project.</i></sup>
 
 ## 📦 Installation
 
-Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be added to your `pyproject.toml` or `pip install`ed directly:
+Rustbin is available on [PyPI](https://pypi.org/project/rustbin/) and can be added to your `pyproject.toml` or `pip install` directly:
 
 ```toml
 [project]
@@ -48,7 +46,6 @@ Versioning of the [package](https://pypi.org/project/rustbin/#history) will foll
 - Ancient versions _might_ be removed to save space, in case a [size grant](https://docs.pypi.org/project-management/storage-limits/) is not given.
 
 > [!IMPORTANT]
->
 > As mapping system information from [Python/Wheels](https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/) to a [Rust Triple](https://doc.rust-lang.org/nightly/rustc/platform-support.html) is non-trivial, and that the package needs rust to build from source, attempting to `pip install` on _"unknown"_ platforms without [prebuilt wheels](https://pypi.org/project/rustbin/#files) on pypi will make an empty one from source without rustup or shims.
 >
 > **Your best path** is to install [rustup](https://rustup.rs/) externally in such cases, this package essentially becomes a no-op.

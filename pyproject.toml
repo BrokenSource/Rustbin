@@ -6,7 +6,7 @@ name        = "rustbin"
 description = "Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
 version     = "1.28.2"
-readme      = ".github/readme.md"
+readme      = "readme.md"
 license     = {text="MIT OR Apache-2.0"}
 requires-python = ">=3.9"
 
@@ -21,24 +21,15 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 exclude = ["*"]
 
-[tool.hatch.metadata.hooks.custom]
-path = "rustbin/build.py"
+[tool.hatch.build.targets.sdist]
+exclude = [".github"]
 
 [tool.hatch.build.hooks.custom]
 path = "rustbin/build.py"
 dependencies = [
     "attrs",
-    "cargo-zigbuild",
+    "requests",
     "requests-cache",
-]
-
-# Warn: Required to run build.py
-[dependency-groups]
-dev = [
-    "attrs",
-    "hatchling",
-    "requests-cache",
-    "uv",
 ]
 
 [tool.ruff.format]

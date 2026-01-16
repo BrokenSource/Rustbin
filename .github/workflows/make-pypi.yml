@@ -1,10 +1,7 @@
 on:
   workflow_dispatch:
     inputs:
-      wheels:
-        required: true
-        type: boolean
-      pypi:
+      publish:
         required: true
         type: boolean
 
@@ -19,7 +16,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
@@ -28,16 +25,14 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Make wheels
-        if: ${{inputs.wheels || inputs.pypi}}
         run: uv run rustbin/build.py
 
       - name: Upload wheels
-        if: ${{inputs.wheels || inputs.pypi}}
         uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist/*
 
       - name: Publish wheels
-        if: ${{inputs.pypi}}
+        if: ${{inputs.publish}}
         run: uv publish
