@@ -1,17 +1,17 @@
-[project.urls]
-GitHub = "https://github.com/BrokenSource/Rustbin"
-
 [project]
 name        = "rustbin"
-description = "Fast rustup shims for python"
+description = "🦀 Fast rustup shims for python"
 authors     = [{name="Tremeschin"}]
-version     = "1.28.2.post1"
+version     = "1.29.0"
 readme      = "readme.md"
 license     = {text="MIT OR Apache-2.0"}
 requires-python = ">=3.9"
 
+[project.urls]
+GitHub = "https://github.com/BrokenSource/Rustbin"
+
 [tool.uv]
-check-url = "https://test.pypi.org/simple"
+managed = false
 
 [build-system]
 requires = ["hatchling"]
@@ -25,7 +25,6 @@ exclude = ["*"]
 exclude = [".github"]
 
 [tool.hatch.build.hooks.custom]
-path = "rustbin/build.py"
 dependencies = [
     "attrs",
     "requests",

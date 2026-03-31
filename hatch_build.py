@@ -177,7 +177,7 @@ class BuildHook(BuildHookInterface):
 # Build script
 
 # Note: Items are somewhat ordered by popularity
-TARGETS: tuple[Target] = (
+TARGETS: list[Target] = [
 
     # -------------------------------- #
     # Windows
@@ -233,7 +233,7 @@ TARGETS: tuple[Target] = (
     #     triple="x86_64-unknown-freebsd",
     #     wheel="freebsd_12_0_x86_64",
     # ),
-)
+]
 
 if __name__ == '__main__':
     for target in TARGETS:
