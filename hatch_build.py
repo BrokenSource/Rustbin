@@ -79,7 +79,7 @@ class Target:
     triple: str = ""
     """Platform https://doc.rust-lang.org/nightly/rustc/platform-support.html"""
 
-    toolch: str = None
+    toolch: str = None # type: ignore
     """Rustup toolchain to compile the shims with, defaults to 'triple'"""
 
     suffix: str = ""
@@ -123,23 +123,23 @@ class Target:
 # Hatchling build hook
 
 class BuildHook(BuildHookInterface):
-    def initialize(self, version: str, build: dict) -> None:
+    def initialize(self, version: str, build_data: dict) -> None:
         self.target = Target(**json.loads(os.getenv(RUSTBIN_TARGET, r"{}")))
 
         # Skip source distributions
-        if not self.target.triple:
-            print("Missing target triple, rustup will not be available")
+        if (not self.target.triple):
+            print("Missing configuration, rustup will not be available")
             return None
 
         # Make wheels always platform specific, any py3
-        build["tag"] = f"py3-none-{self.target.wheel}"
-        build["pure_python"] = False
+        build_data["tag"] = f"py3-none-{self.target.wheel}"
+        build_data["pure_python"] = False
 
         # ---------------------------- #
         # Bundle rustup
 
         # Pack rustup in the venv bin directory
-        build["shared_scripts"][self.target.download()] = \
+        build_data["shared_scripts"][self.target.download()] = \
             self.target.exe("rustup-init")
 
         # ---------------------------- #
@@ -147,6 +147,7 @@ class BuildHook(BuildHookInterface):
 
         # Build fast shims, chicken and egg problem!
         subprocess.run(("rustup", "set", "profile", "minimal"))
+        subprocess.run(("rustup", "default", "stable"))
         subprocess.run(("rustup", "target", "add", self.target.toolch))
         subprocess.check_call((
             "cargo", ("zig"*self.target.zig + "build"), "--release",
@@ -165,7 +166,7 @@ class BuildHook(BuildHookInterface):
         for name in SHIMS:
             shim = self.target.tempfile(name)
             shim.write_bytes(binary)
-            build["shared_scripts"][str(shim)] = self.target.exe(name)
+            build_data["shared_scripts"][str(shim)] = self.target.exe(name)
 
     # Cleanup temporary files
     def finalize(self, *ig, **nore) -> None:
